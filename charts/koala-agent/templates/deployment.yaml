@@ -60,9 +60,6 @@ spec:
                   name: {{ include "koala-agent.name" . }}-secret
                   {{- end }}
                   key: KOALA_API_KEY
-          envFrom:
-          - configMapRef:
-              name: koala-agent-configmap
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
