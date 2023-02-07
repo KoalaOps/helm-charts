@@ -1,0 +1,6 @@
+Thank you for installing {{ .Chart.Name }}.
+
+The agent was installed on namespace: {{ default "default" .Values.namespace }}
+
+See the dashboard at:
+https://app.koalaops.com
