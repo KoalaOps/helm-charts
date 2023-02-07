@@ -17,11 +17,11 @@ spec:
   template:
     metadata:
     {{- with .Values.podAnnotations }}
-    annotations:
-      {{- toYaml . | nindent 8 }}
-    {{- end }}
-    labels:
-      {{- include "koala-agent.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "koala-agent.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
