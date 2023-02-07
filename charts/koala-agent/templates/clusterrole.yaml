@@ -1,10 +1,10 @@
-# TODO: Reduce permissions to only what is needed. This is copied from somewhere and does not necessarily reflect what we actually need.
+# TODO: Reduce permissions to only what is needed. This is partly copied from somewhere and does not necessarily reflect what we actually need.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ include "koala-agent.serviceAccountName" . }}
-  {{- if hasKey .Values "namespace" }}
-  namespace: {{ .Values.namespace }}
+  {{- if hasKey .Release "Namespace" }}
+  namespace: {{ .Release.Namespace }}
   {{- end }}
 rules:
   - apiGroups:
@@ -231,7 +231,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ include "koala-agent.serviceAccountName" . }}
-    {{- if hasKey .Values "namespace" }}
-    namespace: {{ .Values.namespace }}
+    {{- if hasKey .Release "Namespace" }}
+    namespace: {{ .Release.Namespace }}
     {{- end }}
 ---

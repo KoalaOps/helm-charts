@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "koala-agent.fullname" . }}
-  {{- if hasKey .Values "namespace" }}
-  namespace: {{ .Values.namespace }}
+  {{- if hasKey .Release "Namespace" }}
+  namespace: {{ .Release.Namespace }}
   {{- end }}
   labels:
   {{- include "koala-agent.labels" . | nindent 4 }}

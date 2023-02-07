@@ -4,8 +4,8 @@ metadata:
   labels:
     app: koala-agent
   name: koala-agent-critical-pods
-  {{- if hasKey .Values "namespace" }}
-  namespace: {{ .Values.namespace }}
+  {{- if hasKey .Release "Namespace" }}
+  namespace: {{ .Release.Namespace }}
   {{- end}}
 spec:
   hard:
