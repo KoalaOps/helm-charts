@@ -8,7 +8,7 @@ image:
   repository: me-west1-docker.pkg.dev/koala-ops-demo-373407/koala-repo/koala-agent
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
