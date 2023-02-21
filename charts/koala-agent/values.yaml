@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: me-west1-docker.pkg.dev/koala-ops-demo-373407/koala-public/koala-agent
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
