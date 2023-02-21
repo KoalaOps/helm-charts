@@ -2,6 +2,20 @@ apiVersion: v1
 entries:
   koala-agent:
   - apiVersion: v2
+    appVersion: v0.0.1
+    created: "2023-02-21T15:29:24.091465579Z"
+    description: A Helm chart for Koala Agent
+    digest: 0d1f4b5f369f9c3ffae54332539887e788a145490410b6910a459a999d807268
+    icon: https://app.koalaops.com/_next/image?url=%2Fstatic%2Fkoala%2Fkoala-image-square.jpg&w=128&q=75
+    maintainers:
+    - email: nadav@koalaops.com
+      name: nadaverell
+    name: koala-agent
+    type: application
+    urls:
+    - https://github.com/KoalaOps/helm-charts/releases/download/koala-agent-0.1.7/koala-agent-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-02-15T08:15:08.345802732Z"
     description: A Helm chart for Koala Agent
@@ -96,4 +110,4 @@ entries:
     urls:
     - https://github.com/KoalaOps/helm-charts/releases/download/koala-agent-0.1.0/koala-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-02-15T08:15:08.345825933Z"
+generated: "2023-02-21T15:29:24.091490579Z"
