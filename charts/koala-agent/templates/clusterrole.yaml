@@ -110,14 +110,27 @@ rules:
     - get
     - watch
     - list
+  # API groups with view access for various supported CRDs
   - apiGroups:
-    - argoproj.io
+    - external-secrets.io # External Secrets
+    - monitoring.googleapis.com # Stackdriver / GCP Monitoring
+    - argoproj.io # Argo CD/Workflows/Events/Rollouts
+    - monitoring.coreos.com # Prometheus
     resources:
-    - rollouts
-    - rollouts/status
-    - rollouts/finalizers
-    - analysistemplates
-    - clusteranalysistemplates
+    - '*'
+    verbs:
+    - get
+    - watch
+    - list
+  # Partial permissions for Cert Manager, excluding certificates
+  - apiGroups:
+    - cert-manager.io
+    resources:
+    - issuers
+    - clusterissuers
+    - certificaterequests
+    - challenges
+    - orders
     verbs:
     - get
     - watch
@@ -184,6 +197,15 @@ rules:
     - watch
     - list
   - apiGroups:
+    - flowcontrol.apiserver.k8s.io
+    resources:
+    - flowschemas
+    - prioritylevelconfigurations
+    verbs:
+    - get
+    - watch
+    - list
+  - apiGroups:
     - node.k8s.io
     resources:
     - runtimeclasses
@@ -208,17 +230,17 @@ rules:
     - get
     - watch
     - list
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - create
-      - update
-      - delete
-      - list
-      - get
-      - watch
+  # - apiGroups:
+  #     - ""
+  #   resources:
+  #     - secrets
+  #   verbs:
+  #     - create
+  #     - update
+  #     - delete
+  #     - list
+  #     - get
+  #     - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
