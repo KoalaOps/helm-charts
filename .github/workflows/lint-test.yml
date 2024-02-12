@@ -22,7 +22,7 @@ jobs:
           check-latest: true
 
       - name: Add observability repositories
-        working-directory: charts/observability
+        working-directory: charts/observability-opensource-complete
         run: |
           helm dependency update
           helm dependency build
