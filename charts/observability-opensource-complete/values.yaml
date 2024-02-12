@@ -1,0 +1,383 @@
+
+
+# Assuming the re;ease name is observability
+collectorServiceName: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}"
+grafanaServiceName: "{{ .Release.Name }}-grafana.{{ .Release.Namespace }}"
+# mimirServiceName: "{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}"
+# tempoDistributorServiceName: "{{ .Release.Name }}-tempo-distributor.{{ .Release.Namespace }}"
+
+loki-distributed:
+  enabled: false
+loki:
+  loki:
+    enabled: true
+    auth_enabled: false
+    storage:
+      minio:
+        enabled: true
+  
+
+tempo:
+  enabled: true
+  traces:
+    otlp:
+      grpc:
+        enabled: true
+
+grafana:
+  enabled: true
+  grafana.ini:
+    wal: true
+    auth:
+      disable_login_form: true
+    auth.anonymous:
+      enabled: true
+      org_name: Main Org.
+      org_role: Admin
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+      serve_from_sub_path: true
+  adminPassword: admin
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          uid: webstore-metrics
+          type: prometheus
+          url: "http://{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}/prometheus"
+          # url: 'http://{{ include "otel-demo.name" . }}-prometheus-server:9090'
+          editable: true
+          isDefault: true
+        #   jsonData:
+        #     exemplarTraceIdDestinations:
+        #       - datasourceUid: webstore-traces
+        #         name: trace_id
+
+        #       - url: http://localhost:8080/jaeger/ui/trace/$${__value.raw}
+        #         name: trace_id
+        #         urlDisplayLabel: View in Jaeger UI
+
+        # - name: Jaeger
+        #   uid: webstore-traces
+        #   type: jaeger
+        #   url: 'http://simplest-query:16686/jaeger/ui'
+        #   # url: 'http://{{ include "otel-demo.name" . }}-jaeger-query:16686/jaeger/ui'
+        #   editable: true
+        #   isDefault: false
+        - name: Tempo
+          uid: webstore-traces
+          type: tempo
+          url: 'http://{{ .Release.Name }}-tempo-query-frontend.{{ .Release.Namespace }}:3100'
+          # url: 'http://{{ include "otel-demo.name" . }}-jaeger-query:16686/jaeger/ui'
+          editable: true
+          isDefault: false
+        - name: Loki
+          uid: webstore-logs
+          type: loki
+          url: 'http://loki-gateway.{{ .Release.Namespace }}' # Notice for distrubted release name is added
+          editable: true
+          isDefault: false
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  dashboardsConfigMaps:
+    default: 'koala-grafana-dashboards'
+    # default: '{{ include "otel-demo.name" . }}-grafana-dashboards'
+  resources:
+    limits:
+      memory: 150Mi
+
+
+collector:
+  enabled: true
+  mode: deployment
+  presets:
+    kubernetesAttributes:
+      enabled: true
+  resources:
+    limits:
+      memory: 200Mi
+  service:
+    type: ClusterIP
+  ports:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+      containerPort: 9464
+      servicePort: 9464
+      protocol: TCP
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9464"
+    koala_managed: "true"
+  config:
+    exporters:
+      loki:
+        endpoint: http://loki-gateway.{{ .Release.Namespace }}/api/v1/push
+        tls: 
+          insecure: true
+        default_labels_enabled:
+          exporter: false
+          job: true
+      prometheusremotewrite:
+        endpoint: "http://{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}/api/v1/push"
+        tls:
+          insecure: true
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+      otlp/tracing:
+        endpoint: http://{{ .Release.Name }}-tempo-distributor.{{ .Release.Namespace }}:4317
+        tls:
+          insecure: true
+    extensions:
+      health_check: {}
+      memory_ballast:
+        size_in_percentage: 40
+    processors:
+      attributes/logs:
+        actions:
+          - action: insert
+            key: loki.attribute.labels
+            value: event.domain, event.name
+
+      resource/logs:
+        attributes:
+          - action: insert
+            key: loki.resource.labels
+            value: service.name, service.namespace
+      resource:
+          attributes:
+          - key: service.instance.id
+            from_attribute: k8s.pod.uid
+            action: insert
+      filter/empty_http_server_duration:
+        error_mode: ignore
+        metrics:
+          metric:
+              - 'name == "http.server.duration" and type != METRIC_DATA_TYPE_HISTOGRAM'
+              - 'name == "http.client.duration" and type != METRIC_DATA_TYPE_HISTOGRAM'
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+
+    receivers:
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:14250
+          thrift_compact:
+            endpoint: ${env:MY_POD_IP}:6831
+          thrift_http:
+            endpoint: ${env:MY_POD_IP}:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: opentelemetry-collector
+              scrape_interval: 10s
+              static_configs:
+                - targets:
+                    - ${env:MY_POD_IP}:8888
+      # zipkin:
+      #   endpoint: ${env:MY_POD_IP}:9411
+    service:
+      extensions:
+        - health_check
+        - memory_ballast
+      pipelines:
+        logs:
+          receivers:
+            - otlp
+          exporters:
+            - loki
+          processors:
+            - attributes/logs
+            - resource/logs
+        traces:
+          exporters:
+            - otlp/tracing
+          processors:
+            - k8sattributes
+            - memory_limiter
+            - batch
+          receivers:
+            - otlp
+            - jaeger
+        metrics:
+          receivers: 
+            - otlp
+            - prometheus
+          processors: 
+            - memory_limiter
+            - k8sattributes
+            - filter/empty_http_server_duration
+            - resource
+            - batch
+          exporters: 
+            - prometheusremotewrite
+            - debug
+      telemetry:
+        # logs:
+        #   level: debug
+        #   initial_fields:
+        #     service: my-instance
+        #   development: true
+        #   encoding: json
+        #   disable_caller: true
+        #   disable_stacktrace: true
+        #   sampling:
+        #     initial: 10
+        #     thereafter: 5
+        #   output_paths:
+        #     - stdout
+        #   error_output_paths:
+        #     - stderr
+        metrics:
+          level: detailed
+          address: ${env:MY_POD_IP}:8888
+
+observabilityIngress:
+  enabled: true
+  annotations: {}
+  host: observability.koala.local
+  paths:
+    - path: /grafana
+      service: 
+        name: "{{ .Release.Name }}-grafana"
+        namespace: "{{ .Release.Namespace }}"
+        port: 80
+
+
+cluster-events-collector:
+  enabled: true
+  mode: deployment
+  replicaCount: 1
+  presets:
+    kubernetesEvents:
+      enabled: true
+
+cluster-metrics-collector:
+  enabled: true
+  mode: deployment
+  replicaCount: 1
+  presets:
+    clusterMetrics:
+      enabled: true
+    # config:
+    #   exporters:
+    #     otlp:
+    #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
+    #       tls:
+    #         insecure: true
+      # receivers:
+      #   otlp:
+      #     protocols:
+      #       grpc:
+      #       http:
+      # processors:
+      #   batch:
+      # service:
+      #   pipelines:
+      #     metrics:
+      #       receivers: [otlp]
+      #       processors: [batch]
+      #       exporters: [otlp]
+
+
+
+logs-collection:
+  enabled: true
+  mode: daemonset
+  presets:
+    kubernetesAttributes:
+      enabled: true
+      extractAllPodLabels: true
+    logsCollection:
+      enabled: true
+  config:
+    exporters:
+      loki:
+        endpoint: http://loki-gateway.{{ .Release.Namespace }}/loki/api/v1/push
+        tls: 
+          insecure: true
+        default_labels_enabled:
+          exporter: true
+          job: true
+    service:
+      pipelines:
+        logs:
+          receivers:
+            - filelog
+          exporters:
+            - loki
+          processors:
+              - memory_limiter
+              - k8sattributes
+              - batch
+    # config:
+    #   exporters:
+    #     otlp:
+    #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
+    #       tls:
+    #         insecure: true
+    #   receivers:
+    #     otlp:
+    #       protocols:
+    #         grpc:
+    #         http:
+    #   processors:
+    #     batch:
+    #   service:
+    #     pipelines:
+    #       traces:
+    #         receivers: [otlp]
+    #         processors: [batch]
+    #         exporters: [otlp]
+    #       metrics:
+    #         receivers: [otlp]
+    #         processors: [batch]
+    #         exporters: [otlp]
+
+  # config:
+  #   exporters:
+  #     otlp:
+  #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
+  #       tls:
+  #         insecure: true
+  #   receivers:
+  #     otlp:
+  #       protocols:
+  #         grpc:
+  #         http:
+  #   processors:
+  #     batch:
+  #   service:
+  #     pipelines:
+  #       traces:
+  #         receivers: [otlp]
+  #         processors: [batch]
+  #         exporters: [otlp]
+  #       metrics:
+  #         receivers: [otlp]
+  #         processors: [batch]
+  #         exporters: [otlp]
