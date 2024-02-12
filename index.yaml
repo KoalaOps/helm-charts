@@ -291,4 +291,59 @@ entries:
     urls:
     - https://github.com/KoalaOps/helm-charts/releases/download/observability-0.0.1/observability-0.0.1.tgz
     version: 0.0.1
-generated: "2024-02-12T16:21:07.044966223Z"
+  observability-opensource-complete:
+  - apiVersion: v2
+    created: "2024-02-12T16:29:03.048924162Z"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 7.3.0
+    - alias: mimir
+      condition: mimir.enabled
+      name: mimir-distributed
+      repository: https://grafana.github.io/helm-charts
+      version: 5.2.1
+    - alias: tempo
+      condition: tempo.enabled
+      name: tempo-distributed
+      repository: https://grafana.github.io/helm-charts
+      version: 1.8.3
+    - alias: loki-distributed
+      condition: loki-distributed.enabled
+      name: loki-distributed
+      repository: https://grafana.github.io/helm-charts
+      version: 0.78.2
+    - alias: loki
+      condition: loki.enabled
+      name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 5.42.2
+    - alias: collector
+      condition: collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    - alias: cluster-events-collector
+      condition: cluster-events-collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    - alias: logs-collection
+      condition: logs-collection.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    - alias: cluster-metrics-collector
+      condition: cluster-metrics-collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    description: A fully integrated observability stack for Kubernetes applications
+      using OpenTelemetry and Grafana.
+    digest: 69e1f38da081974b7c79384025400349f75d7f4fb202d5d8dccfc697519572e3
+    name: observability-opensource-complete
+    urls:
+    - https://github.com/KoalaOps/helm-charts/releases/download/observability-opensource-complete-0.0.1/observability-opensource-complete-0.0.1.tgz
+    version: 0.0.1
+generated: "2024-02-12T16:29:03.048953667Z"
