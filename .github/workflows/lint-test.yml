@@ -21,6 +21,12 @@ jobs:
           python-version: '3.9'
           check-latest: true
 
+      - name: Add observability repositories
+        working-directory: charts/observability
+        run: |
+          helm dependency update
+          helm dependency build
+
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.3.1
 
