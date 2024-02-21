@@ -1,22 +1,5 @@
 
 
-# Assuming the re;ease name is observability
-collectorServiceName: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}"
-grafanaServiceName: "{{ .Release.Name }}-grafana.{{ .Release.Namespace }}"
-# mimirServiceName: "{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}"
-# tempoDistributorServiceName: "{{ .Release.Name }}-tempo-distributor.{{ .Release.Namespace }}"
-
-loki-distributed:
-  enabled: false
-loki:
-  loki:
-    enabled: true
-    auth_enabled: false
-    storage:
-      minio:
-        enabled: true
-  
-
 tempo:
   enabled: true
   traces:
@@ -46,36 +29,12 @@ grafana:
           uid: webstore-metrics
           type: prometheus
           url: "http://{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}/prometheus"
-          # url: 'http://{{ include "otel-demo.name" . }}-prometheus-server:9090'
           editable: true
           isDefault: true
-        #   jsonData:
-        #     exemplarTraceIdDestinations:
-        #       - datasourceUid: webstore-traces
-        #         name: trace_id
-
-        #       - url: http://localhost:8080/jaeger/ui/trace/$${__value.raw}
-        #         name: trace_id
-        #         urlDisplayLabel: View in Jaeger UI
-
-        # - name: Jaeger
-        #   uid: webstore-traces
-        #   type: jaeger
-        #   url: 'http://simplest-query:16686/jaeger/ui'
-        #   # url: 'http://{{ include "otel-demo.name" . }}-jaeger-query:16686/jaeger/ui'
-        #   editable: true
-        #   isDefault: false
         - name: Tempo
           uid: webstore-traces
           type: tempo
           url: 'http://{{ .Release.Name }}-tempo-query-frontend.{{ .Release.Namespace }}:3100'
-          # url: 'http://{{ include "otel-demo.name" . }}-jaeger-query:16686/jaeger/ui'
-          editable: true
-          isDefault: false
-        - name: Loki
-          uid: webstore-logs
-          type: loki
-          url: 'http://loki-gateway.{{ .Release.Namespace }}' # Notice for distrubted release name is added
           editable: true
           isDefault: false
   dashboardProviders:
@@ -123,13 +82,6 @@ collector:
     koala_managed: "true"
   config:
     exporters:
-      loki:
-        endpoint: http://loki-gateway.{{ .Release.Namespace }}/api/v1/push
-        tls: 
-          insecure: true
-        default_labels_enabled:
-          exporter: false
-          job: true
       prometheusremotewrite:
         endpoint: "http://{{ .Release.Name }}-mimir-nginx.{{ .Release.Namespace }}/api/v1/push"
         tls:
@@ -147,17 +99,6 @@ collector:
       memory_ballast:
         size_in_percentage: 40
     processors:
-      attributes/logs:
-        actions:
-          - action: insert
-            key: loki.attribute.labels
-            value: event.domain, event.name
-
-      resource/logs:
-        attributes:
-          - action: insert
-            key: loki.resource.labels
-            value: service.name, service.namespace
       resource:
           attributes:
           - key: service.instance.id
@@ -205,14 +146,6 @@ collector:
         - health_check
         - memory_ballast
       pipelines:
-        logs:
-          receivers:
-            - otlp
-          exporters:
-            - loki
-          processors:
-            - attributes/logs
-            - resource/logs
         traces:
           exporters:
             - otlp/tracing
@@ -283,101 +216,3 @@ cluster-metrics-collector:
   presets:
     clusterMetrics:
       enabled: true
-    # config:
-    #   exporters:
-    #     otlp:
-    #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
-    #       tls:
-    #         insecure: true
-      # receivers:
-      #   otlp:
-      #     protocols:
-      #       grpc:
-      #       http:
-      # processors:
-      #   batch:
-      # service:
-      #   pipelines:
-      #     metrics:
-      #       receivers: [otlp]
-      #       processors: [batch]
-      #       exporters: [otlp]
-
-
-
-logs-collection:
-  enabled: true
-  mode: daemonset
-  presets:
-    kubernetesAttributes:
-      enabled: true
-      extractAllPodLabels: true
-    logsCollection:
-      enabled: true
-  config:
-    exporters:
-      loki:
-        endpoint: http://loki-gateway.{{ .Release.Namespace }}/loki/api/v1/push
-        tls: 
-          insecure: true
-        default_labels_enabled:
-          exporter: true
-          job: true
-    service:
-      pipelines:
-        logs:
-          receivers:
-            - filelog
-          exporters:
-            - loki
-          processors:
-              - memory_limiter
-              - k8sattributes
-              - batch
-    # config:
-    #   exporters:
-    #     otlp:
-    #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
-    #       tls:
-    #         insecure: true
-    #   receivers:
-    #     otlp:
-    #       protocols:
-    #         grpc:
-    #         http:
-    #   processors:
-    #     batch:
-    #   service:
-    #     pipelines:
-    #       traces:
-    #         receivers: [otlp]
-    #         processors: [batch]
-    #         exporters: [otlp]
-    #       metrics:
-    #         receivers: [otlp]
-    #         processors: [batch]
-    #         exporters: [otlp]
-
-  # config:
-  #   exporters:
-  #     otlp:
-  #       endpoint: "{{ .Release.Name }}-collector.{{ .Release.Namespace }}:4317"
-  #       tls:
-  #         insecure: true
-  #   receivers:
-  #     otlp:
-  #       protocols:
-  #         grpc:
-  #         http:
-  #   processors:
-  #     batch:
-  #   service:
-  #     pipelines:
-  #       traces:
-  #         receivers: [otlp]
-  #         processors: [batch]
-  #         exporters: [otlp]
-  #       metrics:
-  #         receivers: [otlp]
-  #         processors: [batch]
-  #         exporters: [otlp]
