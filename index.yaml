@@ -348,6 +348,45 @@ entries:
     version: 0.0.1
   opensource-metrics-and-tracing:
   - apiVersion: v2
+    created: "2024-02-22T13:22:25.914176292Z"
+    dependencies:
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 7.3.0
+    - alias: mimir
+      condition: mimir.enabled
+      name: mimir-distributed
+      repository: https://grafana.github.io/helm-charts
+      version: 5.2.1
+    - alias: tempo
+      condition: tempo.enabled
+      name: tempo-distributed
+      repository: https://grafana.github.io/helm-charts
+      version: 1.8.3
+    - alias: collector
+      condition: collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    - alias: cluster-events-collector
+      condition: cluster-events-collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    - alias: cluster-metrics-collector
+      condition: cluster-metrics-collector.enabled
+      name: opentelemetry-collector
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.80.0
+    description: Opensource metrics and tracing solution using OTEL for collection
+      , Tempo as tracing backend , Mimir as metrics backend and Grafana for visualization
+    digest: 01015017632064cb44bfe9778907463d93e8723c001eb90c0d6125ead0456873
+    name: opensource-metrics-and-tracing
+    urls:
+    - https://github.com/KoalaOps/helm-charts/releases/download/opensource-metrics-and-tracing-0.0.2/opensource-metrics-and-tracing-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
     created: "2024-02-21T14:18:47.207082348Z"
     dependencies:
     - condition: grafana.enabled
@@ -391,4 +430,4 @@ entries:
     urls:
     - https://github.com/KoalaOps/helm-charts/releases/download/opensource-metrics-and-tracing-0.0.1/opensource-metrics-and-tracing-0.0.1.tgz
     version: 0.0.1
-generated: "2024-02-21T14:18:47.207134505Z"
+generated: "2024-02-22T13:22:25.914226937Z"
