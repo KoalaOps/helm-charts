@@ -1,7 +1,7 @@
 apiVersion: v2
 name: opensource-metrics-and-tracing
 description: Opensource metrics and tracing solution using OTEL for collection , Tempo as tracing backend , Mimir as metrics backend and Grafana for visualization
-version: 0.0.1
+version: 0.0.2
 dependencies:
   - name: grafana
     version: "7.3.0"
@@ -27,11 +27,6 @@ dependencies:
     version: "0.80.0"
     repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
     condition: cluster-events-collector.enabled
-  - name: opentelemetry-collector 
-    alias: logs-collection
-    version: "0.80.0"
-    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
-    condition: logs-collection.enabled
   - name: opentelemetry-collector 
     alias: cluster-metrics-collector
     version: "0.80.0"
