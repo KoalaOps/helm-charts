@@ -21,15 +21,6 @@ jobs:
           python-version: '3.9'
           check-latest: true
 
-      - name: Add observability repositories
-        working-directory: charts/observability-opensource-complete
-        run: |
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add opentelemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-          helm repo update
-          helm dependency update
-          helm dependency build
-
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2
 
