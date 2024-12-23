@@ -23,6 +23,9 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   # name: ""
 
+labels:
+  app.kubernetes.io/name: koala-agent
+
 podAnnotations: {}
 
 podSecurityContext: {}
@@ -80,4 +83,3 @@ workerPoolSize: 5
 
 # API key to use for the agent (to be placed in the secret). Expected to be provided during 'helm install'.
 apiKey: "placeholder"
-
