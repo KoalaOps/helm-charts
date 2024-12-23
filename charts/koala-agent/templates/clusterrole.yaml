@@ -114,8 +114,9 @@ rules:
   - apiGroups:
     - external-secrets.io # External Secrets
     - monitoring.googleapis.com # Stackdriver / GCP Monitoring
-    - argoproj.io # Argo CD/Workflows/Events/Rollouts
     - monitoring.coreos.com # Prometheus
+    - monitoring.grafana.com # Grafana
+    - argoproj.io # Argo CD/Workflows/Events/Rollouts
     resources:
     - '*'
     verbs:
