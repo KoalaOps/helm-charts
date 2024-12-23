@@ -64,6 +64,8 @@ spec:
                   name: {{ include "koala-agent.name" . }}-secret
                   {{- end }}
                   key: KOALA_API_KEY
+            - name: WORKER_POOL_SIZE
+              value: "{{ .Values.workerPoolSize | default 5 }}"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
