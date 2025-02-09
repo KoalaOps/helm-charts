@@ -10,11 +10,21 @@ rules:
   - apiGroups:
     - ""
     resources:
+    - namespaces
+    verbs:
+    - get
+    - watch
+    - list
+    # Required for automating deletion of ephemeral/preview environments. 
+    # Agent is hardcoded to only allow deleting namespaces prefixed with "preview-" or "ephemeral-".
+    - delete
+  - apiGroups:
+    - ""
+    resources:
     - events
     - pods
     - replicationcontrollers
     - services
-    - namespaces
     - configmaps
     - nodes
     - persistentvolumes
