@@ -124,9 +124,30 @@ rules:
   - apiGroups:
     - external-secrets.io # External Secrets
     - monitoring.googleapis.com # Stackdriver / GCP Monitoring
-    - monitoring.coreos.com # Prometheus
+    - monitoring.coreos.com # Prometheus Operator
     - monitoring.grafana.com # Grafana
+    - tempo.grafana.com # Grafana Tempo
+    - loki.grafana.com # Grafana Loki
+    - grafana.integreatly.org # Grafana Operator
     - argoproj.io # Argo CD/Workflows/Events/Rollouts
+    - opentelemetry.io # OpenTelemetry
+    - keda.sh # KEDA
+    - sealed-secrets.bitnami.com # Sealed Secrets
+    - reloader.stakater.com # Reloader
+    - observability.openshift.io # Observability Bundle
+    - nginx.org # NGINX Ingress
+    - kubeshark.io # Kubeshark
+    - kyverno.io # Kyverno
+    - externaldns.k8s.io # External DNS
+    - reflector.v1.k8s.emberstack.com # Reflector
+    - kured.io # Kured
+    - descheduler.alpha.kubernetes.io # Descheduler
+    - awx.ansible.com # AWX ALB Controller
+    - karpenter.sh # Karpenter
+    - karpenter.k8s.aws # Karpenter AWS
+    - velero.io # Velero
+    - mariadb.mmontes.io # MariaDB Operator
+    - cloudnative-pg.io # CloudNativePG
     resources:
     - '*'
     verbs:
