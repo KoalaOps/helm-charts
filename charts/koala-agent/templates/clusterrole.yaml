@@ -92,6 +92,14 @@ rules:
     - watch
     - list
   - apiGroups:
+    - gateway.networking.k8s.io
+    resources:
+    - '*'
+    verbs:
+    - get
+    - watch
+    - list
+  - apiGroups:
     - ""
     resources:
     - pods
@@ -138,6 +146,9 @@ rules:
     - nginx.org # NGINX Ingress
     - kubeshark.io # Kubeshark
     - kyverno.io # Kyverno
+    - wgpolicyk8s.io # Kyverno Policy Reports
+    - reports.kyverno.io # Kyverno Reports
+    - openreports.io # Kyverno Open Reports
     - externaldns.k8s.io # External DNS
     - reflector.v1.k8s.emberstack.com # Reflector
     - kured.io # Kured
@@ -148,6 +159,7 @@ rules:
     - velero.io # Velero
     - mariadb.mmontes.io # MariaDB Operator
     - cloudnative-pg.io # CloudNativePG
+    - gateway.envoyproxy.io # Envoy Gateway
     resources:
     - '*'
     verbs:
